@@ -5,32 +5,43 @@ const { chromium } = require('playwright');
   const context = await browser.newContext();
   const page = await context.newPage();
 
-  // Go to IRCTC site
+  // Navigate to IRCTC
   await page.goto('https://www.irctc.co.in/nget/train-search');
-  await page.waitForTimeout(5000);
 
-  // Click Login
-  await page.click('a[aria-label="Click here to Login"]');
-  await page.waitForSelector('input[formcontrolname="userid"]');
+  // Perform login steps here...
 
-  // Fill credentials
-  await page.fill('input[formcontrolname="userid"]', 'your_username_here');
-  await page.fill('input[formcontrolname="password"]', 'your_password_here');
+  // Function to simulate user activity
+  const keepSessionAlive = setInterval(async () => {
+    try {
+      await page.mouse.move(100, 100);
+      await page.mouse.click(100, 100);
+      await page.evaluate(() => window.scrollBy(0, 100));
+      console.log('Simulated user activity to keep session alive.');
+    } catch (error) {
+      console.error('Error during session keep-alive:', error);
+    }
+  }, 30000); // Every 30 seconds
 
-  // Pause for manual captcha entry
-  console.log("⏸️ Enter captcha manually & click Login. You have 60 seconds...");
-  await page.waitForTimeout(60000); // Give time for manual input
+  // Monitor session status
+  const monitorSession = setInterval(async () => {
+    try {
+      const currentURL = page.url();
+      if (currentURL.includes('session-expired')) {
+        console.log('Session has expired.');
+        clearInterval(keepSessionAlive);
+        clearInterval(monitorSession);
+        await browser.close();
+      }
+    } catch (error) {
+      console.error('Error monitoring session:', error);
+    }
+  }, 10000); // Every 10 seconds
 
-  // Wait for redirection
-  await page.waitForTimeout(5000);
-
-  // Keep session alive for 2 minutes
-  console.log("🔄 Keeping session alive for 2 minutes...");
-  for (let i = 0; i < 4; i++) {
-    await page.reload();
-    await page.waitForTimeout(30000);
-  }
-
-  console.log("✅ Session maintained. Closing...");
-  await browser.close();
+  // Keep the session alive for 2 minutes
+  setTimeout(async () => {
+    clearInterval(keepSessionAlive);
+    clearInterval(monitorSession);
+    console.log('Completed 2 minutes of session activity.');
+    await browser.close();
+  }, 120000); // 2 minutes
 })();
