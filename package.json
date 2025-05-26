@@ -1,0 +1,14 @@
+{
+  "name": "irctc-login-automation-js",
+  "version": "1.0.0",
+  "description": "Automation challenge for Wander using Playwright JS",
+  "main": "main.js",
+  "scripts": {
+    "start": "node main.js"
+  },
+  "devDependencies": {
+    "playwright": "^1.43.1"
+  },
+  "author": "Nandini Juturu",
+  "license": "MIT"
+}
